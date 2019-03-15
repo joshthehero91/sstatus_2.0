@@ -1,0 +1,11 @@
+[root@host2 ~]# BOLD='\e[1m';LBLU='\e[94m';NC='\e[0m';echo "";if [[ $(httpd -V|egrep "HTTPD_ROOT=\"\/etc\/apache2") ]]; then echo -e "${BOLD}${LBLU}Inherent PHP version:${NC}";php -v|head -n1|awk '{print$1" "$2}'; echo -e "${BOLD}${LBLU}PHP versions in use on `hostname`:${NC}" ;grep "phpversion:" /var/cpanel/userdata/*/*|awk '{print $2}'|sort|uniq -c|sort -rnk1; else echo -e "${BOLD}${LBLU}Inherent PHP version:${NC}:"; php -v|head -n1|awk '{print$1" "$2}'; fi; echo ""; echo -e "${BOLD}${LBLU}Checking various memory_limit settings:"${NC}; echo -en "Current loaded php.ini file: ";echo -e ${LBLU}${BOLD}$(php -i|grep "Loaded Configuration File"|awk '{print$5}'|head -1);echo -e $(cat `php -i|grep "Loaded Configuration File"|awk '{print$5}'|head -1`| grep memory_limit)${NC}
+
+Inherent PHP version:
+PHP 7.1.16
+PHP versions in use on host2.tonallytubular.com:
+      4 ea-php70
+      3 ea-php71
+
+Checking various memory_limit settings:
+Current loaded php.ini file: /opt/cpanel/ea-php71/root/etc/php.ini
+memory_limit = 64M

@@ -1,0 +1,7 @@
+[root@host2 ~]# BOLD='\e[1m';LBLU='\e[94m';NC='\e[0m';echo "";echo -ne "${BOLD}${LBLU}cPanel: ${NC}";cat /usr/local/cpanel/version ;echo -ne "${BOLD}${LBLU}cPanel accounts: ${NC}";/scripts/updateuserdomains && cat /etc/trueuserdomains|wc -l ;echo -ne "${BOLD}${LBLU}cPanel domains: ${NC}";awk '/DNS*=/' /var/cpanel/users/*|grep -vE '(^| )DNS=( |$)'|cut -c 5-|wc -l ;echo "" ;if [[ $(httpd -V|egrep "HTTPD_ROOT=\"\/etc\/apache2") ]]; then echo -e "${BOLD} ${BLUB}--EasyApache 4 in use--${NC}"; echo $EA4H; else echo -e "${BOLD} ${BLUB}--EasyApache 3 in use--${NC}"; echo $EA3H; fi
+
+cPanel: 11.72.0.3
+cPanel accounts: 7
+cPanel domains: 7
+
+ --EasyApache 4 in use--

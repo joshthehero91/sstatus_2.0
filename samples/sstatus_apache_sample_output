@@ -1,0 +1,32 @@
+[root@host2 ~]# BOLD='\e[1m';LBLU='\e[94m';NC='\e[0m';echo "";echo -e "${BOLD}${LBLU}Apache Version:${NC}";httpd -V|grep version|awk '{print $3,$4}';echo "";echo -e "${BOLD}${LBLU}Checking for Apache confs:${NC}";if [[ -s /usr/local/apache/conf/includes/pre_virtualhost_global.conf ]];then echo -e "${BOLD}${LBLU}Contents of /usr/local/apache/conf/includes/pre_virtualhost_global.conf:${NC}";cat /usr/local/apache/conf/includes/pre_virtualhost_global.conf;else echo -e "${BOLD}${LBLU}No global Apache configurations in place.${NC}";fi;echo "";if [[ -s /usr/local/apache/conf/includes/pre_virtualhost_2.conf ]];then echo -e "${BOLD}${LBLU}Contents of /usr/local/apache/conf/includes/pre_virtualhost_2.conf:${NC}";cat /usr/local/apache/conf/includes/pre_virtualhost_2.conf;else echo -e "${BOLD}${LBLU}No Apache 2 configurations in place.${NC}";fi;echo "";ea_check () { if [[ $(httpd -V|egrep "HTTPD_ROOT=\"\/etc\/apache2") ]];then return;fi; } ;if ea_check $1;then if [[ $(grep max /opt/cpanel/ea-php*/root/usr/var/log/php-fpm/error.log) ]] ;then echo -e "${BOLD}${LBLU}Potential MaxChildren limit reached errors:${NC}" ; grep max /opt/cpanel/ea-php*/root/usr/var/log/php-fpm/error.log | wc -l ;echo -e "${BOLD}${LBLU}Top 5 offending domains:${NC}"; grep max /opt/cpanel/ea-php*/root/usr/var/log/php-fpm/error.log|awk '{print $5}'|sort|uniq -c|sort -rnk1 ;else echo -e "${BOLD}${LBLU}No PHP-FPM limit errors"${NC} ;fi ;if [[ $(grep MaxRequestWorkers /usr/local/apache/logs/error_log) ]] ;then echo -ne "${BOLD}${LBLU}Potential MaxRequestWorkers limit errors: "${NC} ; grep MaxRequestWorkers /usr/local/apache/logs/error_log| wc -l ;else echo -e "${BOLD}${LBLU}No Apache limit errors.${NC}" ;fi;fi;
+
+Apache Version:
+Apache/2.4.33 (cPanel)
+
+Checking for Apache confs:
+Contents of /usr/local/apache/conf/includes/pre_virtualhost_global.conf:
+KeepAlive On
+MaxKeepAliveRequests 150
+KeepAliveTimeout 2
+Timeout 30
+
+<IfModule prefork.c>
+    MaxClients 30
+</IfModule>
+<IfModule worker.c>
+    ServerLimit 16
+    StartServers 3
+    ThreadsPerChild 25
+    MaxClients 400
+</IfModule>
+<IfModule event.c>
+    ServerLimit 16
+    StartServers 3
+    ThreadsPerChild 25
+    MaxClients 400
+</IfModule> 
+
+No Apache 2 configurations in place.
+
+No PHP-FPM limit errors
+Potential MaxRequestWorkers limit errors: 1

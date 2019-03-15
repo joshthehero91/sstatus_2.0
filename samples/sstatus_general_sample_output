@@ -1,0 +1,28 @@
+[root@host2 ~]# BOLD='\e[1m';LBLU='\e[94m';NC='\e[0m';echo "";echo -e "${BOLD}${LBLU}Hostname: "${NC};hostname;echo ""; echo -e "${BOLD}${LBLU}Uptime:"${NC};uptime;echo "";echo -e "${BOLD}${LBLU}Operating System:${NC}" ;if [[ -a /etc/redhat-release ]] ;then cat /etc/redhat-release ;fi ;if [[ -a /etc/lsb-release ]] ;then lsb_release -a ;fi ;if [[ -a /etc/debian_version ]] ; then cat /etc/debian_version ;fi ;echo "";echo -e "${BOLD}${LBLU}Disk Usage:${NC}" ;df -h ;df -Ph| awk '0+$5 >= 80 {print}' ;echo ""; echo -e "${BOLD}${LBLU}Memory Usage:${NC}" ;free -h ;echo ""; echo -e "${BOLD}${LBLU}Potential OOM notificaitons:${NC} $(grep Kill /var/log/messages|wc -l)"; echo -en "${BOLD}${LBLU}CPU(s): "${NC};grep --count ^processor /proc/cpuinfo
+
+Hostname: 
+host2.tonallytubular.com
+
+Uptime:
+ 06:55:08 up 151 days,  3:50,  1 user,  load average: 0.00, 0.01, 0.05
+
+Operating System:
+CentOS Linux release 7.4.1708 (Core) 
+
+Disk Usage:
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda3        48G   13G   32G  29% /
+devtmpfs        436M     0  436M   0% /dev
+tmpfs           446M     0  446M   0% /dev/shm
+tmpfs           446M   57M  390M  13% /run
+tmpfs           446M     0  446M   0% /sys/fs/cgroup
+/dev/loop0      3.9G  8.8M  3.7G   1% /tmp
+tmpfs            90M     0   90M   0% /run/user/0
+
+Memory Usage:
+              total        used        free      shared  buff/cache   available
+Mem:           891M        325M        118M         30M        446M        362M
+Swap:          2.0G        340M        1.6G
+
+Potential OOM notificaitons: 0
+CPU(s): 2

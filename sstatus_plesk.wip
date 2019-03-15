@@ -1,0 +1,44 @@
+# sstatus_general seems to work without issue:
+#BOLD='\e[1m';LBLU='\e[94m';NC='\e[0m';echo "";echo -e "${BOLD}${LBLU}Hostname: "${NC};hostname;echo ""; echo -e "${BOLD}${LBLU}Uptime:"${NC};uptime;echo "";echo -e "${BOLD}${LBLU}Operating System:${NC}" ;if [[ -a /etc/redhat-release ]] ;then cat /etc/redhat-release ;fi ;if [[ -a /etc/lsb-release ]] ;then lsb_release -a ;fi ;if [[ -a /etc/debian_version ]] ; then cat /etc/debian_version ;fi ;echo -e "${BOLD}${LBLU}Loaded Kernel:${NC}" ;uname -r;echo ""; echo -e "${BOLD}${LBLU}Kernels Installed:${NC}" ;rpm -qa | grep kernel | egrep -iv 'tools|headers|care|update' | awk -F"kernel-" '{print $2}'| sort -nr;echo "";echo "";echo -e "${BOLD}${LBLU}Disk Usage:${NC}" ;df -h ;df -Ph| awk '0+$5 >= 80 {print}' ;echo ""; echo -e "${BOLD}${LBLU}Memory Usage:${NC}" ;free -h ;echo ""; echo -e "${BOLD}${LBLU}Potential OOM notificaitons:${NC} $(grep Kill /var/log/messages|wc -l)"; echo -en "${BOLD}${LBLU}CPU(s): "${NC};grep --count ^processor /proc/cpuinfo
+#
+# Updated 11/09/2018
+BD='\e[1m';BL='\e[94m';NC='\e[0m';echo "";echo -en "${BD}${BL}Hostname: "${NC};hostname;echo -e "${BD}${BL}Uptime:"${NC};uptime;echo -en "${BD}${BL}Operating System: ${NC}";if [[ -a /etc/redhat-release ]] ;then cat /etc/redhat-release;fi;echo -e "${BD}${BL}Disk Usage (ignoring tmpfs):${NC}";df -h|grep -v tmpfs;df -Ph| awk '0+$5 >= 80 {print}';echo -e "${BD}${BL}Memory Usage:${NC}";free -h;echo -e "${BD}${BL}Potential OOM notificaitons: ${NC} $(grep -a Kill /var/log/messages|wc -l)"; echo -en "${BD}${BL}CPU(s): "${NC};grep --count ^processor /proc/cpuinfo
+
+
+# Check for all domains hosted on the server and what IP they point to:
+MYSQL_PWD=`cat /etc/psa/.psa.shadow` mysql -u admin -Dpsa -e"SELECT dom.id, dom.name, ia.ipAddressId, iad.ip_address FROM domains dom LEFT JOIN DomainServices d ON (dom.id = d.dom_id AND d.type = 'web') LEFT JOIN IpAddressesCollections ia ON ia.ipCollectionId = d.ipCollectionId LEFT JOIN IP_Addresses iad ON iad.id = ia.ipAddressId"
+
+
+# Need to work out the best way to determine what web server is being used. This works for now but an automated check then display the correct confs would be cool:
+# lsof -i|grep "httpd\|lite\|ngin"
+#
+# Update 11/09/2018:
+echo -n "Web server: ";lsof -i|grep "httpd\|lite\|ngin"|awk '{print $3}'|sort|uniq|grep -v root
+
+# Check enabled PHP versions and then disabled:
+plesk bin php_handler --list | grep enabled|awk '{print $1, $2, $8, $10}'
+
+# Check for PHP caching:
+yum list installed|grep "memcache\|opcache"|awk '{print $1}'
+
+# Check all PHP version memory_limit 's. This could be much better by print the version before or condesing if all the results are the same:
+for i in $(plesk bin php_handler --list | grep enabled|awk '{print $8}');do grep "memory_limit" $i; done
+
+# Check number of domains setup in Plesk:
+plesk db -Ne"select name from domains where status=0"|wc -l
+
+# Check Plesk version:
+plesk version
+
+# Confirm backup locations:
+grep DUMP_D /etc/psa/psa.conf
+
+# Checking Apache configurations needs to be done per domain basis but the confs are stored in /var/www/vhosts/system/$DOMAIN.TLD/conf/httpd.conf but also are set gloablay from /etc/httpd/conf/httpd.conf :
+# Here's a quick checker for Apache confs:
+cat /etc/httpd/conf/httpd.conf| grep -Pzo '.*Add controls which attempt improve the handling of Apache During High Traffic(.*\n)*'
+
+
+
+
+
+

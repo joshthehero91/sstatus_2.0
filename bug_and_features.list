@@ -1,0 +1,16 @@
+########
+#      #
+# Bugs #
+#      #
+########
+
+OOM Kiler false positives cause by FTP users deleting files:
+root@host [~]# grep Kill /var/log/messages|wc -l
+36
+root@host [~]# grep Kill /var/log/messages|grep -vi "Deleted\|Downloaded"
+Oct 30 14:25:31 host kernel: [5094221.904284] Out of memory: Kill process 72699 (java) score 182 or sacrifice child
+Oct 30 14:25:31 host kernel: [5094221.904721] Killed process 72699, UID 32012, (java) total-vm:5042444kB, anon-rss:1564512kB, file-rss:40kB
+
+Apache checks throws this error occasionally(on EA3 boxes I belive):
+grep: /opt/cpanel/ea-php*/root/usr/var/log/php-fpm/error.log: No such file or directory
+
