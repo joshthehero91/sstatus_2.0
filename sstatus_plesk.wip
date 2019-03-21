@@ -13,7 +13,7 @@ MYSQL_PWD=`cat /etc/psa/.psa.shadow` mysql -u admin -Dpsa -e"SELECT dom.id, dom.
 # lsof -i|grep "httpd\|lite\|ngin"
 #
 # Update 11/09/2018:
-echo -n "Web server: ";lsof -i|grep "httpd\|lite\|ngin"|awk '{print $3}'|sort|uniq|grep -v root
+echo -n "Web server: ";lsof -i|grep "httpd\|lite\|ngin"|awk '{print $1}'|sort|uniq|grep -v root
 
 # Check enabled PHP versions and then disabled:
 plesk bin php_handler --list | grep enabled|awk '{print $1, $2, $8, $10}'
